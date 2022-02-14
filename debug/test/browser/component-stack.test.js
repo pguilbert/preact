@@ -83,4 +83,44 @@ describe('component stack', () => {
 		expect(lines[1].indexOf('Thrower') > -1).to.equal(true);
 		expect(lines[2].indexOf('Bar') > -1).to.equal(true);
 	});
+
+	it('should pass componentStack in errorInfo', () => {
+		function Foo(props) {
+			return <div>{props.children}</div>;
+		}
+
+		function Thrower() {
+			throw new Error('fail');
+		}
+
+		function Bar() {
+			return (
+				<Foo>
+					<Thrower />
+				</Foo>
+			);
+		}
+
+		let info;
+		class Receiver extends Component {
+			constructor(props) {
+				super(props);
+				this.state = { error: null };
+			}
+			componentDidCatch(error, errorInfo) {
+				info = errorInfo;
+				this.setState({ error });
+			}
+			render() {
+				if (this.state.error) return <div />;
+				return <Bar />;
+			}
+		}
+
+		render(<Receiver />, scratch);
+
+		expect(info.componentStack).to.match(/in Thrower/);
+		expect(info.componentStack).to.match(/in Bar/);
+		expect(info.componentStack).to.match(/in Receiver/);
+	});
 });

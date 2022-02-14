@@ -38,6 +38,7 @@ export interface Options extends preact.Options {
 	_skipEffects?: boolean;
 	/** Attach a hook that is invoked after an error is caught in a component but before calling lifecycle hooks */
 	_catchError(error: any, vnode: VNode, oldVNode?: VNode | undefined): void;
+	_errorInfo?: Record<string, any>;
 }
 
 export type ComponentChild =
